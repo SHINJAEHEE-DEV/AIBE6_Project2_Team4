@@ -48,7 +48,7 @@ public class App {
             switch (cmd){
                 case "1" -> {
                     System.out.println("모험을 시작합니다!");
-
+                    gameController.start();
                 }
                 case "2" -> {
                     return;
