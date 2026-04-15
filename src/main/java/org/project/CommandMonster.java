@@ -1,12 +1,18 @@
 package org.project;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class CommandMonster {
     private  int id;
     private String name;
     private String type;
     private int level;
     private  int exp;
-    private int baseHp, baseAtk, baseDef, baseSp, baseSpd; //종족값 - 데이터 파일에서 가져올 것
+    private final int baseHp, baseAtk, baseDef, baseSp, baseSpd; //종족값 - 데이터 파일에서 가져올 것
     private  int maxHp, currentHp, atk, def, sp, spd;//실제 능력치
 
     public CommandMonster(String name, String type,int baseHp, int baseAtk, int baseDef, int baseSp, int baseSpd, int level){
@@ -32,15 +38,15 @@ public class CommandMonster {
     }
 
 
-    public String getName() {
-        return name;
-    }
+    public void levelUp() {
+        this.level++; // 1. 레벨 증가
 
-    public int getLevel() {
-        return level;
-    }
-    public  String getType(){
-        return type;
-    }
+        int oldMaxHp = this.maxHp; // 2. 이전 최대 체력 기록
+        ActualStats();             // 3. 증가한 레벨로 능력치 갱신
 
+        // 4. 레벨업 보너스: 최대 체력이 늘어난 만큼 현재 체력도 회복
+        this.currentHp += (this.maxHp - oldMaxHp);
+
+        System.out.println("\n[ " + name + "의 레벨이 " + level + "로 올랐습니다! ]");
+    }
 }
