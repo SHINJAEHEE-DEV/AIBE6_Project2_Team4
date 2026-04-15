@@ -36,7 +36,28 @@ public class GameController {
                 return;
             }
         }
+        inventory.addMonster(starter);
         System.out.println("\n[시스템] " + starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했습니다!");
+    }
+    private void mainMenu() {
+        while (true) {
+            System.out.println("\n1. 모험하기 | 2. 포켓몬 센터 | 3. 내 포켓몬 목록 | 0. 종료");
+            System.out.print("메뉴 선택: ");
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1" -> startAdventure();
+                case "2" -> visitCenter();
+                case "3" -> inventory.showMonsters();
+                case "0" -> { return; }
+            }
+        }
+    }
+
+    private void visitCenter() {
+    }
+
+    private void startAdventure() {
     }
 
 
