@@ -5,17 +5,24 @@ import org.project.domain.CommandMonster;
 import org.project.domain.PlayerInventory;
 import org.project.standard.util.Util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class GameController {
     private Scanner scanner = new Scanner(System.in);
     private PlayerInventory inventory = new PlayerInventory();
     private GameService gameService = new GameService();
-
+    private List<CommandMonster> pokemonDatabase = new ArrayList<>();
+    private Random random = new Random();
     public void start() {
+        loadMostersData();
         choosePartner();
         mainMenu();
     }
+
+
 
     // --- [페이지 1: 파트너 포켓몬 선택] ---
     private void choosePartner() {
@@ -134,7 +141,57 @@ public class GameController {
     }
 
     private void startAdventure() {
-    }
+        while (true) {
+            Util.delay(500);
 
+            System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 도망친다◀ | ▶0. 이전으로◀");
+            System.out.print("[메뉴 선택]: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> {
+
+                }
+                case "2" -> {
+
+                }
+                case "0" -> {
+                    System.out.println("\n이전화면으로 돌아갑니다.");
+                    return;
+                }
+                default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
+            }
+        }
+    }
+    private boolean monsterOrTrainer(){
+         boolean isMonster = random.nextBoolean();
+        //몬스터
+        if(isMonster){
+
+        }else{ //트레이너
+
+        }
+
+
+        return isMonster;
+    }
+    // 야생 포켓몬 한 마리 무작위 추출
+    public CommandMonster getRandomMonster(int avgLevel) {
+
+        int index = random.nextInt(pokemonDatabase.size());
+        CommandMonster base = pokemonDatabase.get(index);
+
+        // 레벨 결정 (평균 레벨 기준 +-2)
+        int wildLevel = Math.max(1, avgLevel + random.nextInt(5) - 2);
+
+        // 원본 종족값을 이용해 새로운 인스턴스 생성
+        return new CommandMonster(
+                base.getName(), base.getType(),
+                base.getBaseHp(), base.getBaseAtk(), base.getBaseDef(),
+                base.getBaseSp(), base.getBaseSpd(), wildLevel
+        );
+    }
+    private void loadMostersData() {
+
+    }
 
 }
