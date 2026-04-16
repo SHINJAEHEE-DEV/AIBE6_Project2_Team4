@@ -150,13 +150,13 @@ public class GameController {
     }
 
     private void startAdventure() {
+        Util.delay(500);
+        CommandMonster wildMonster =  getRandomMonster(inventory.getAvgLevel());
+        CommandMonster myMonster = inventory.sendMonster();
+        System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
+        System.out.println(" 나와!  "+ myMonster.getName()+"!");
         while (true) {
-            Util.delay(500);
             if(monsterOrTrainer()){
-                CommandMonster wildMonster =  getRandomMonster(inventory.getAvgLevel());
-                CommandMonster myMonster = inventory.sendMonster();
-                System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
-                System.out.println(" 나와!  "+ myMonster.getName()+"!");
                 Util.delay(500);
                 printMonsterStatus(wildMonster, "야생");
                 printMonsterStatus(myMonster, "");
