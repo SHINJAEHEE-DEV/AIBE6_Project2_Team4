@@ -42,7 +42,7 @@ public class App {
             System.out.println("                       \\              /");
             System.out.println("                        '------------'");
 
-            System.out.println(white + "\n               [ 1세대 관동버전 v1.0 ]" + reset);
+            System.out.println(white + "\n                           [ v1.0 ]" + reset);
             System.out.println("              ------------------------------------");
             System.out.println("                 ▶1.처음부터◀          ▶2.죵료◀   ");
             System.out.println("                숫자를 입력하여 모험을 떠나세요!"  );

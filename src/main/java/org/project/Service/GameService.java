@@ -37,7 +37,7 @@ public class GameService {
         return Math.random() > 0.5;
     }
 
-    private void executeTurn(CommandMonster attacker, CommandMonster defender) {
+    public void executeTurn(CommandMonster attacker, CommandMonster defender) {
         // 1. 공격 유형 결정 (물리 ATK vs 특수 SP)
         boolean isPhysical = determineAttackType(attacker);
         int attackPower = isPhysical ? attacker.getAtk() : attacker.getSp();
@@ -83,15 +83,27 @@ public class GameService {
     }
 
     public int calculateEarnedExp(CommandMonster wild) {
-        // 1. 상대의 종족값 합산 (BaseSum)
+        // 상대의 종족값 합산 (BaseSum)
         int baseSum = wild.getBaseHp() +
                 wild.getBaseAtk() +
                 wild.getBaseDef() +
                 wild.getBaseSp() +
                 wild.getBaseSpd();
-        // 2. 공식 적용: (BaseSum * L_enemy) / 7
+        // 공식 적용: (BaseSum * L_enemy) / 7
         int earnedExp = (baseSum * wild.getLevel()) / 7;
-        // 3. 최소 경험치 보장 (레벨이 아주 낮더라도 최소 1은 획득)
+        // 최소 경험치 보장 (레벨이 아주 낮더라도 최소 1은 획득)
         return Math.max(1, earnedExp);
+    }
+
+    public boolean tryCapture(CommandMonster wild) {
+        // 체력이 100%일 때 1배, 1%일 때 약 3배의 보너스
+        double hpBonus = (double) (wild.getMaxHp() * 3 - wild.getCurrentHp() * 2) / wild.getMaxHp();
+
+        // 기본 포획률 설정 (0.0 ~ 1.0)
+        // 기본 30% 확률에 HP 보너스를 곱함
+        double captureChance = 0.31 * hpBonus;
+
+        // 난수 발생 및 결과 확인
+        return Math.random() < captureChance;
     }
 }

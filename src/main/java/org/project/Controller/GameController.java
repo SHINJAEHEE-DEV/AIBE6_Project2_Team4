@@ -187,23 +187,50 @@ public class GameController {
                     }
 
                     if (result == 2) { // 내 포켓몬 기절
-                        Util.delay(500);
-                        System.out.println("\n[시스템] " + myMonster.getName() + "이(가) 기절했다!");
-                        if (inventory.isAllFainted()) {
-                            Util.delay(500);
-                            System.out.println("\n[유저] 내보낼 수 있는 포켓몬이 없다. 눈앞이 깜깜 해졌다! 포켓몬 센터로 달려갔다.");
-                            visitCenter(); // 강제 포켓몬 센터 이동
-                            return;
-                        } else {
-                            CommandMonster nextMonster = selectReplacement(myMonster);
-                            Util.delay(500);
-                            System.out.println("[유저] \"나와! " + nextMonster.getName()+"!\"");
-                            myMonster = nextMonster; // 교체 후 전투 루프 계속
-                        }
+                        myMonster = handlePlayerFaint(myMonster);
+                        if (myMonster == null) return; // 전멸 시 전투 종료
                     }
                 }
                 case "2" -> {
+                    // 1. 인벤토리 공간 확인
+                    if (inventory.getMyMonsters().size() >= 6) {
+                        System.out.println("\n[시스템] 인벤토리가 가득 찼습니다! 더 이상 잡을 수 없습니다.");
+                        continue;
+                    }
 
+                    // 2. 몬스터볼 던지기 연출
+                    System.out.println("\n[유저] \"가라! 몬스터볼!\"");
+                    Util.delay(800);
+
+                    for (int i = 0; i < 3; i++) {
+                        System.out.print(" . ");
+                        Util.delay(600);
+                        System.out.print("흔들! ");
+                        Util.delay(600);
+                    }
+
+                    // 3. 포획 판정
+                    if (gameService.tryCapture(wildMonster)) {
+                        System.out.println("\n\n [시스템] 찰카닥! " + wildMonster.getName() + "을(를) 잡았다!");
+
+                        inventory.addMonster(wildMonster);
+
+                        return; // 전투 종료 (메인 메뉴로)
+                    } else {
+                        System.out.println("\n\n [시스템] 뽀용! " + wildMonster.getName() + "볼에서 튀어 나왔다!");
+                        Util.delay(500);
+                        System.out.println("\n\n [유저] \"아깝다!\" 잡을 수 있었는데.");
+
+                        // 포획 실패 시 야생 포켓몬의 반격 (턴 소모)
+                        Util.delay(800);
+                        gameService.executeTurn(wildMonster, myMonster);
+
+                        // 내 포켓몬 기절 체크 (기존 기절 로직과 동일)
+                        if (myMonster.getCurrentHp() <= 0) {
+                            handlePlayerFaint(myMonster);
+                            return;
+                        }
+                    }
                 }
                 case "3" -> {
                     System.out.println("\n이전화면으로 돌아갑니다.");
@@ -211,12 +238,42 @@ public class GameController {
                 }
                 case  "4" ->{
                     selectReplacement(myMonster);
+                    gameService.executeTurn(wildMonster, myMonster);
                 }
                 default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
             }
         }
     }
+    private CommandMonster handlePlayerFaint(CommandMonster faintedMonster) {
+        Util.delay(500);
+        System.out.println("\n[시스템] " + faintedMonster.getName() + "이(가) 기절했다!");
 
+        // 1. 모든 포켓몬이 기절했는지 확인 (전멸 체크)
+        if (inventory.isAllFainted()) {
+            Util.delay(800);
+            System.out.println("\n[유저] \"더 이상 내보낼 포켓몬이 없어...!\"");
+            Util.delay(500);
+            System.out.println("[시스템] 눈앞이 깜깜해졌다! 급히 포켓몬 센터로 달려갔다.");
+            Util.delay(1000);
+            visitCenter();
+            return null; // 전멸 상태 알림
+        }
+
+        // 2. 살아있는 포켓몬이 있다면 강제 교체 루프
+        CommandMonster nextMonster = null;
+        while (nextMonster == null) {
+            System.out.println("\n[시스템] 다음 포켓몬을 선택해야 합니다.");
+            nextMonster = selectReplacement(faintedMonster);
+
+            if (nextMonster == null) {
+                System.out.println("\n<알림> 기절한 상태에서는 도망칠 수 없습니다! 싸울 포켓몬을 고르세요.");
+            }
+        }
+
+        Util.delay(500);
+        System.out.println("\n[유저] \"나와! " + nextMonster.getName() + "!\"");
+        return nextMonster;
+    }
     private void checkEvolution(CommandMonster monster) {
         // 진화 조건: 진화 대상이 있고(id != 0), 현재 레벨이 진화 레벨 이상일 때
         if (monster.getEvolutionId() != 0 && monster.getLevel() >= monster.getEvolutionLevel()) {
@@ -252,11 +309,11 @@ public class GameController {
     public CommandMonster selectReplacement(CommandMonster current) {
         while (true) {
             inventory.showMonsters(); // 현재 목록 출력
-            System.out.println("\n[0. 취소(이전으로) | 번호 선택]");
+            System.out.println("\n[7. 취소(이전으로) | 번호 선택]");
             System.out.print("교체할 포켓몬의 번호를 입력하세요: ");
             try {
-                int choice = Integer.parseInt(scanner.nextLine());
-                if (choice == 0) return null; // 교체 취소
+                int choice = Integer.parseInt(scanner.nextLine()) - 1;
+                if (choice == 7) return null; // 교체 취소
 
                 CommandMonster selected = inventory.sendMonster(choice);
 
