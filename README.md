@@ -2,7 +2,7 @@
 
 <!-- 시연 영상(GIF) 이미지 태그 자리 -->
 <p align="center">
-  <img src="./docs/image/CommandMonster.gif" alt="Command Monster 데모 플레이">
+  <img src="./docs/image/CommandMoster.gif" alt="Command Monster 데모 플레이">
 </p>
 
 ## 🎮 게임 소개
