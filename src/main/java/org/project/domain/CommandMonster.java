@@ -10,11 +10,12 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CommandMonster {
-    private final int id;
+    private int id;
     private String name;
     private String type;
     private int level;
     private  int exp;
+    private int totalExp;
     // JSON key랑 변수명 매핑
     @SerializedName("base_hp")
     private int baseHp;
@@ -55,18 +56,21 @@ public class CommandMonster {
         this.def = (int)((baseDef * level) / 50.0) + 5;
         this.sp = (int)((baseSp * level) / 50.0) + 5;
         this.spd = (int)((baseSpd * level) / 50.0) + 5;
+        this.totalExp = (int) Math.pow(level + 1, 3);
+    }
+
+    public boolean getExpByBattle(int exp) {
+        this.exp = this.exp + exp;
+        return this.exp >= totalExp;
     }
 
 
     public void levelUp() {
         this.level++; // 1. 레벨 증가
-
         int oldMaxHp = this.maxHp; // 2. 이전 최대 체력 기록
-        ActualStats();             // 3. 증가한 레벨로 능력치 갱신
-
+        ActualStats();  // 3. 증가한 레벨로 능력치 갱신
+        this.exp = 0;
         // 4. 레벨업 보너스: 최대 체력이 늘어난 만큼 현재 체력도 회복
         this.currentHp += (this.maxHp - oldMaxHp);
-
-        System.out.println("\n[ " + name + "의 레벨이 " + level + "로 올랐습니다! ]");
     }
 }

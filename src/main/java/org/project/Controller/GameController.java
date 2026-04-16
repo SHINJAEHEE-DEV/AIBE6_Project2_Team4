@@ -170,6 +170,16 @@ public class GameController {
                     if (result == 1) { // 야생 포켓몬 기절
                         Util.delay(500);
                         System.out.println("\n[시스템] 야생의 " + wildMonster.getName() + "이(가) 기절했다!");
+                        Util.delay(500);
+                        int expAmount = gameService.calculateEarnedExp(wildMonster);
+                        System.out.println("[시스템] " + expAmount + " EXP를 획득했다!");
+
+                        //레벨업 체크
+                        if(myMonster.getExpByBattle(expAmount)){
+                            myMonster.levelUp();
+                            Util.delay(500);
+                            System.out.println("[시스템] 레벨업! " + myMonster.getLevel() + "레벨이 되었다.");
+                        }
                         return; // 전투 종료 (메인 메뉴로)
                     }
 
@@ -203,6 +213,8 @@ public class GameController {
             }
         }
     }
+
+
 
 
     public CommandMonster selectReplacement(CommandMonster current) {
@@ -249,6 +261,7 @@ public class GameController {
         System.out.print(hpColor + hpBar + reset);
         System.out.printf("] %d / %d\n", monster.getCurrentHp(), monster.getMaxHp());
         System.out.println(" 종족값: ATK %d | SP %d |DEF %d | SPD %d".formatted(monster.getAtk(), monster.getSp(), monster.getBaseDef(),monster.getBaseSpd()));
+        System.out.println("EXP) "+monster.getExp() + " / " +monster.getTotalExp());
         System.out.println("==========================================");
     }
 

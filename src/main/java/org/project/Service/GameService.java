@@ -81,4 +81,17 @@ public class GameService {
         // roll이 atk 범위 안에 있으면 물리, 아니면 특수
         return roll < atk;
     }
+
+    public int calculateEarnedExp(CommandMonster wild) {
+        // 1. 상대의 종족값 합산 (BaseSum)
+        int baseSum = wild.getBaseHp() +
+                wild.getBaseAtk() +
+                wild.getBaseDef() +
+                wild.getBaseSp() +
+                wild.getBaseSpd();
+        // 2. 공식 적용: (BaseSum * L_enemy) / 7
+        int earnedExp = (baseSum * wild.getLevel()) / 7;
+        // 3. 최소 경험치 보장 (레벨이 아주 낮더라도 최소 1은 획득)
+        return Math.max(1, earnedExp);
+    }
 }
