@@ -1,6 +1,7 @@
 package org.project.Controller;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.project.Service.GameService;
 import org.project.domain.CommandMonster;
 import org.project.domain.PlayerInventory;
@@ -9,6 +10,7 @@ import org.project.standard.util.Util;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -22,6 +24,8 @@ public class GameController {
     private Random random = new Random();
     public void start() {
         loadMostersData();
+        Util.delay(500);
+        System.out.println("[시스템] 포켓몬 데이터 " + pokemonDatabase.size() + "건 로드 완료.");
         choosePartner();
         mainMenu();
     }
@@ -41,9 +45,9 @@ public class GameController {
         CommandMonster starter = null;
 
         switch (choice) {
-            case "1" -> starter = new CommandMonster("이상해씨", "풀", 45, 49, 49, 65, 45, 5);
-            case "2" -> starter = new CommandMonster("파이리", "불꽃", 39, 52, 43, 50, 65, 5);
-            case "3" -> starter = new CommandMonster("꼬부기", "물", 44, 48, 65, 50, 43, 5);
+            case "1" -> starter = new CommandMonster(1,"이상해씨", "풀", 45, 49, 49, 65, 45, 16,2,5);
+            case "2" -> starter = new CommandMonster(4,"파이리", "불꽃", 39, 52, 43, 50, 65, 16,5,5);
+            case "3" -> starter = new CommandMonster(7, "꼬부기", "물", 44, 48, 65, 50, 43, 16,8,5);
             default -> {
                 System.out.println("\n[오박사] :  똑바로 알려줄래? 그런 포켓몬은 없는것 같단다.");
                 choosePartner();
@@ -51,7 +55,7 @@ public class GameController {
             }
         }
         inventory.addMonster(starter);
-        System.out.println("\n[시스템] " + starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했습니다!");
+        System.out.println("\n[시스템] " + starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했다!");
     }
     private void mainMenu() {
         while (true) {
@@ -110,7 +114,7 @@ public class GameController {
                     Util.delay(500);
                     System.out.println("\n...");
                     Util.delay(500);
-                    System.out.println("\n[시스템] 내 친구 "+ name+"(이)가 떠나갔습니다. 바이바이!\n\n");
+                    System.out.println("\n[시스템] 내 친구 "+ name+"(이)가 떠나갔다. 바이바이!\n\n");
 
                 }
                 case "0" -> {
@@ -147,7 +151,15 @@ public class GameController {
     private void startAdventure() {
         while (true) {
             Util.delay(500);
+            if(monsterOrTrainer()){
+                CommandMonster wildMonster =  getRandomMonster(inventory.getAvgLevel());
+                System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
+            }else{
+                //플레이어 조우시
+                continue;
+            }
 
+            Util.delay(500);
             System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 도망친다◀ | ▶0. 이전으로◀");
             System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
@@ -167,40 +179,50 @@ public class GameController {
         }
     }
     private boolean monsterOrTrainer(){
-         boolean isMonster = random.nextBoolean();
-        //몬스터
-        if(isMonster){
-
-        }else{ //트레이너
-
-        }
-
-
+        int randomNum = random.nextInt(20);
+        boolean isMonster = randomNum != 0;
         return isMonster;
     }
+
+
     // 야생 포켓몬 한 마리 무작위 추출
     public CommandMonster getRandomMonster(int avgLevel) {
 
         int index = random.nextInt(pokemonDatabase.size());
         CommandMonster base = pokemonDatabase.get(index);
 
+        while(base.getEvolutionId() == 0 && avgLevel < 30) { //초반에 진화체 나오는것 방지
+            index = random.nextInt(pokemonDatabase.size());
+            base = pokemonDatabase.get(index);
+        }
+
         // 레벨 결정 (평균 레벨 기준 +-2)
         int wildLevel = Math.max(1, avgLevel + random.nextInt(5) - 2);
-
         // 원본 종족값을 이용해 새로운 인스턴스 생성
         return new CommandMonster(
-                base.getName(), base.getType(),
-                base.getBaseHp(), base.getBaseAtk(), base.getBaseDef(),
-                base.getBaseSp(), base.getBaseSpd(), wildLevel
+                base.getId(),
+                base.getName(),
+                base.getType(),
+                base.getBaseHp(),
+                base.getBaseAtk(),
+                base.getBaseDef(),
+                base.getBaseSp(),
+                base.getBaseSpd(),
+                base.getEvolutionLevel(),
+                base.getEvolutionId(),
+                wildLevel
         );
     }
+
+
+
     private void loadMostersData() {
         try{
             Reader reader = new FileReader("src/main/resources/pokemonDatabase.json");
             Gson gson = new Gson();
-            pokemonDatabase = gson.fromJson(reader, ArrayList.class);
-            Util.delay(500);
-            System.out.println("[시스템] 포켓몬 데이터 " + pokemonDatabase.size() + "건 로드 완료.");
+            // TypeToken을 사용하여 List<CommandMonster> 임을 명시적으로 선언
+            Type monsterListType = new TypeToken<ArrayList<CommandMonster>>(){}.getType();
+            pokemonDatabase = gson.fromJson(reader, monsterListType);
         }catch (FileNotFoundException e){
             throw new RuntimeException("파일 읽기 중 오류 발생", e);
         }

@@ -1,6 +1,7 @@
 package org.project.domain;
 
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,24 +10,41 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CommandMonster {
-    private  int id;
+    private final int id;
     private String name;
     private String type;
     private int level;
     private  int exp;
-    private final int baseHp, baseAtk, baseDef, baseSp, baseSpd; //종족값 - 데이터 파일에서 가져올 것
+    // JSON key랑 변수명 매핑
+    @SerializedName("base_hp")
+    private int baseHp;
+    @SerializedName("base_atk")
+    private int baseAtk;
+    @SerializedName("base_def")
+    private int baseDef;
+    @SerializedName("base_sp")
+    private int baseSp;
+    @SerializedName("base_spd")
+    private int baseSpd;
+    @SerializedName("evolution_level")
+    private int evolutionLevel;
+    @SerializedName("evolution_id")
+    private int evolutionId;//종족값 - 데이터 파일에서 가져올 것
     private  int maxHp, currentHp, atk, def, sp, spd;//실제 능력치
 
-    public CommandMonster(String name, String type,int baseHp, int baseAtk, int baseDef, int baseSp, int baseSpd, int level){
+    public CommandMonster(int id, String name, String type,int baseHp, int baseAtk, int baseDef, int baseSp, int baseSpd,int evolutionLevel, int evolutionId, int level){
         //종족값 초기화
+        this.id = id;
         this.name = name;
         this.type = type;
-        this.level = level;
         this.baseHp = baseHp;
         this.baseAtk = baseAtk;
         this.baseDef = baseDef;
         this.baseSp = baseSp;
         this.baseSpd = baseSpd;
+        this.evolutionLevel = evolutionLevel;
+        this.evolutionId = evolutionId;
+        this.level = level;
         ActualStats();
         this.currentHp = this.maxHp; // 처음엔 풀피로 시작 계산 적용후 현재체력 저장해야 함
     }

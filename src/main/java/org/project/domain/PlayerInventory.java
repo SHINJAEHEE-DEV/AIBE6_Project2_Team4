@@ -53,4 +53,10 @@ public class PlayerInventory {
     public void releaseMonster(int releaseIndex) {
         myMonsters.remove(releaseIndex);
     }
+    public  int getAvgLevel(){
+       return (int) myMonsters.stream()
+                       .mapToInt( e -> e.getLevel())
+                            .average()
+                                    .orElse(1);
+    }
 }
