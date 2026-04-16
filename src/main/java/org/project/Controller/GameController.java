@@ -156,22 +156,16 @@ public class GameController {
         System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
         System.out.println(" 나와!  "+ myMonster.getName()+"!");
         while (true) {
-            if(monsterOrTrainer()){
                 Util.delay(500);
                 printMonsterStatus(wildMonster, "야생");
                 printMonsterStatus(myMonster, "");
-            }else{
-                //플레이어 조우시
-                continue;
-            }
-
             Util.delay(500);
             System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 벗어난다.◀ ");
             System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> {
-
+                    gameService.startBattle(myMonster, wildMonster);
                 }
                 case "2" -> {
 
@@ -207,13 +201,6 @@ public class GameController {
         System.out.printf("] %d / %d\n", monster.getCurrentHp(), monster.getMaxHp());
         System.out.println(" 종족값: ATK %d | SP %d |DEF %d | SPD %d".formatted(monster.getAtk(), monster.getSp(), monster.getBaseDef(),monster.getBaseSpd()));
         System.out.println("==========================================");
-    }
-
-
-    private boolean monsterOrTrainer(){
-        int randomNum = random.nextInt(20);
-        boolean isMonster = randomNum != 0;
-        return isMonster;
     }
 
 
