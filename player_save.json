@@ -5,7 +5,7 @@
       "name": "파이리",
       "type": "불꽃",
       "level": 5,
-      "exp": 197,
+      "exp": 0,
       "base_hp": 39,
       "base_atk": 52,
       "base_def": 43,
@@ -14,7 +14,7 @@
       "evolution_level": 16,
       "evolution_id": 5,
       "maxHp": 18,
-      "currentHp": 18,
+      "currentHp": 12,
       "atk": 10,
       "def": 9,
       "sp": 10,
@@ -24,10 +24,12 @@
   "MAX_CAPACITY": 6,
   "pokedex": {
     "seenIds": [
+      17,
       4,
-      70
+      46
     ],
     "caughtIds": [
+      17,
       4
     ]
   }
