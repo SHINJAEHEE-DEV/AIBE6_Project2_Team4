@@ -1,10 +1,14 @@
 package org.project.Controller;
 
+import com.google.gson.Gson;
 import org.project.Service.GameService;
 import org.project.domain.CommandMonster;
 import org.project.domain.PlayerInventory;
 import org.project.standard.util.Util;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -191,6 +195,15 @@ public class GameController {
         );
     }
     private void loadMostersData() {
+        try{
+            Reader reader = new FileReader("src/main/resources/pokemonDatabase.json");
+            Gson gson = new Gson();
+            pokemonDatabase = gson.fromJson(reader, ArrayList.class);
+            Util.delay(500);
+            System.out.println("[시스템] 포켓몬 데이터 " + pokemonDatabase.size() + "건 로드 완료.");
+        }catch (FileNotFoundException e){
+            throw new RuntimeException("파일 읽기 중 오류 발생", e);
+        }
 
     }
 
