@@ -8,18 +8,25 @@ import java.util.Random;
 
 public class GameService {
     private Random random = new Random();
-    public void startBattle(CommandMonster player, CommandMonster wild) {
-        System.out.println("\n[전투 시작] " + player.getName() + " vs " + wild.getName());
-        Util.delay(500);
-        // 1. 선공 결정
+    public int startBattle(CommandMonster player, CommandMonster wild) {
         boolean playerGoesFirst = determinePriority(player, wild);
+
+        // 공격 순서에 따른 실행
         if (playerGoesFirst) {
-            executeTurn(player, wild); // 플레이어 턴
-            if (wild.getCurrentHp() > 0) executeTurn(wild, player); // 야생 포켓몬 반격
+            executeTurn(player, wild);
+            if (wild.getCurrentHp() <= 0) return 1; // 야생 포켓몬 기절 (승리)
+
+            executeTurn(wild, player);
+            if (player.getCurrentHp() <= 0) return 2; // 내 포켓몬 기절 (패배)
         } else {
-            executeTurn(wild, player); // 야생 포켓몬 턴
-            if (player.getCurrentHp() > 0) executeTurn(player, wild); // 플레이어 반격
+            executeTurn(wild, player);
+            if (player.getCurrentHp() <= 0) return 2; // 내 포켓몬 기절 (패배)
+
+            executeTurn(player, wild);
+            if (wild.getCurrentHp() <= 0) return 1; // 야생 포켓몬 기절 (승리)
         }
+
+        return 0; // 아무도 기절하지 않음 (전투 계속)
     }
 
     private boolean determinePriority(CommandMonster p1, CommandMonster p2) {

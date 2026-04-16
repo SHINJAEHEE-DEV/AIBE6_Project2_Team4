@@ -47,7 +47,7 @@ public class PlayerInventory {
             return;
         }
         Collections.swap(myMonsters, i, j);
-        System.out.println("\n[시스템] 포켓몬의 순서가 변경되었습니다!");
+        System.out.println("\n[유저] 포켓몬의 순서가 변경되었다!");
     }
 
     public void releaseMonster(int releaseIndex) {
@@ -64,5 +64,12 @@ public class PlayerInventory {
                 .filter(e -> e.getCurrentHp() != 0)
                 .findFirst()
                 .orElse(null);
+    }
+    public  CommandMonster sendMonster(int index){
+        return myMonsters.get(index);
+    }
+    public boolean isAllFainted() {
+        // 살아있는 포켓몬이 한 마리라도 있으면 false, 모두 기절했으면 true
+        return myMonsters.stream().allMatch(m -> m.getCurrentHp() <= 0);
     }
 }

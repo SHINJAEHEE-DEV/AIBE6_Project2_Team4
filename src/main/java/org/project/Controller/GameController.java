@@ -36,8 +36,8 @@ public class GameController {
     // --- [페이지 1: 파트너 포켓몬 선택] ---
     private void choosePartner() {
         System.out.println("\n====================================");
-        System.out.println(" 오박사: 자, 여기 세 마리의 포켓몬이 있단다.");
-        System.out.println(" 너의 여정을 함께할 파트너를 골라보려무나!");
+        System.out.println(" [오박사] \"자, 여기 세 마리의 포켓몬이 있단다.");
+        System.out.println(" 너의 여정을 함께할 파트너를 골라보려무나!\"");
         System.out.println("====================================");
         System.out.println(" 1. 이상해씨 (풀) | 2. 파이리 (불꽃) | 3. 꼬부기 (물)");
         System.out.print(" 번호 선택: ");
@@ -50,13 +50,13 @@ public class GameController {
             case "2" -> starter = new CommandMonster(4,"파이리", "불꽃", 39, 52, 43, 50, 65, 16,5,5);
             case "3" -> starter = new CommandMonster(7, "꼬부기", "물", 44, 48, 65, 50, 43, 16,8,5);
             default -> {
-                System.out.println("\n[오박사] :  똑바로 알려줄래? 그런 포켓몬은 없는것 같단다.");
+                System.out.println("\n[오박사]  \"똑바로 알려줄래? 그런 포켓몬은 없는것 같단다.\"");
                 choosePartner();
                 return;
             }
         }
         inventory.addMonster(starter);
-        System.out.println("\n[시스템] " + starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했다!");
+        System.out.println("\n[유저] " + starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했다!");
     }
     private void mainMenu() {
         while (true) {
@@ -115,7 +115,7 @@ public class GameController {
                     Util.delay(500);
                     System.out.println("\n...");
                     Util.delay(500);
-                    System.out.println("\n[시스템] 내 친구 "+ name+"(이)가 떠나갔다. 바이바이!\n\n");
+                    System.out.println("\n[유저] "+ name+"(이)가 떠나갔다. \"바이바이!\"\n\n");
 
                 }
                 case "0" -> {
@@ -153,19 +153,41 @@ public class GameController {
         Util.delay(500);
         CommandMonster wildMonster =  getRandomMonster(inventory.getAvgLevel());
         CommandMonster myMonster = inventory.sendMonster();
-        System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
-        System.out.println(" 나와!  "+ myMonster.getName()+"!");
+        System.out.println("\n[유저] \"앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.\"");
+        System.out.println(" \"나와!  "+ myMonster.getName()+"!\"");
         while (true) {
                 Util.delay(500);
                 printMonsterStatus(wildMonster, "야생");
                 printMonsterStatus(myMonster, "");
             Util.delay(500);
-            System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 벗어난다.◀ ");
+            System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 벗어난다.◀ | ▶4. 교체한다.◀ ");
             System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1" -> {
-                    gameService.startBattle(myMonster, wildMonster);
+                    int result = gameService.startBattle(myMonster, wildMonster);
+
+                    if (result == 1) { // 야생 포켓몬 기절
+                        Util.delay(500);
+                        System.out.println("\n[시스템] 야생의 " + wildMonster.getName() + "이(가) 기절했다!");
+                        return; // 전투 종료 (메인 메뉴로)
+                    }
+
+                    if (result == 2) { // 내 포켓몬 기절
+                        Util.delay(500);
+                        System.out.println("\n[시스템] " + myMonster.getName() + "이(가) 기절했다!");
+                        if (inventory.isAllFainted()) {
+                            Util.delay(500);
+                            System.out.println("\n[유저] 내보낼 수 있는 포켓몬이 없다. 눈앞이 깜깜 해졌다! 포켓몬 센터로 달려갔다.");
+                            visitCenter(); // 강제 포켓몬 센터 이동
+                            return;
+                        } else {
+                            CommandMonster nextMonster = selectReplacement(myMonster);
+                            Util.delay(500);
+                            System.out.println("[유저] \"나와! " + nextMonster.getName()+"!\"");
+                            myMonster = nextMonster; // 교체 후 전투 루프 계속
+                        }
+                    }
                 }
                 case "2" -> {
 
@@ -174,11 +196,38 @@ public class GameController {
                     System.out.println("\n이전화면으로 돌아갑니다.");
                     return;
                 }
+                case  "4" ->{
+                    selectReplacement(myMonster);
+                }
                 default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
             }
         }
     }
 
+
+    public CommandMonster selectReplacement(CommandMonster current) {
+        while (true) {
+            inventory.showMonsters(); // 현재 목록 출력
+            System.out.println("\n[0. 취소(이전으로) | 번호 선택]");
+            System.out.print("교체할 포켓몬의 번호를 입력하세요: ");
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+                if (choice == 0) return null; // 교체 취소
+
+                CommandMonster selected = inventory.sendMonster(choice);
+
+                if (selected == current) {
+                    System.out.println("\n<알림> 이미 배틀 중인 포켓몬입니다!");
+                } else if (selected.getCurrentHp() <= 0) {
+                    System.out.println("\n<알림> 기절한 포켓몬은 내보낼 수 없습니다!");
+                } else {
+                    return selected; // 적절한 교체 대상 반환
+                }
+            } catch (Exception e) {
+                System.out.println("\n<알림> 올바른 번호를 입력해주세요.");
+            }
+        }
+    }
 
     private void printMonsterStatus(CommandMonster monster, String tag) {
         String red = "\u001B[31m";
