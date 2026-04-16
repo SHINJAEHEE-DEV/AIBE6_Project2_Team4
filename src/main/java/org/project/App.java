@@ -1,6 +1,7 @@
 package org.project;
 
 import org.project.Controller.GameController;
+import org.project.standard.util.Util;
 
 import java.util.Scanner;
 
@@ -12,7 +13,14 @@ public class App {
     String yellow = "\u001B[33m";
     String reset = "\u001B[0m";
     void run(){
-        System.out.println(yellow + """
+
+
+        while (true){
+
+            System.out.println("\n... COMMAND MONSTER 로딩 중 ...");
+            Util.delay(500); // 0.5초 대기
+            Scanner scanner = new Scanner(System.in);
+            System.out.println(yellow + """
              _____                                          _   ___  ___                 _             \s
             /  __ \\                                        | |  |  \\/  |                | |            \s
             | /  \\/ ___  _ __ ___  _ __ ___   __ _ _ __   __| |  | .  . | ___  _ __  ___| |_ ___ _ __ \s
@@ -21,39 +29,36 @@ public class App {
              \\____/\\___/|_| |_| |_|_| |_| |_|\\__,_|_| |_|\\__,_|  \\_|  |_/\\___/|_| |_|___/\\__\\___|_|   \s
             """ + reset);
 
-        // 빨간색 윗부분 몬스터볼
-        System.out.println(red + "                          .----------." + reset);
-        System.out.println(red + "                       /              \\" + reset);
-        System.out.println(red + "                      /                \\" + reset);
-        System.out.println(red + "                     |      .----.      |" + reset);
+            // 빨간색 윗부분 몬스터볼
+            System.out.println(red + "                          .----------." + reset);
+            System.out.println(red + "                       /              \\" + reset);
+            System.out.println(red + "                      /                \\" + reset);
+            System.out.println(red + "                     |      .----.      |" + reset);
 
-        // 중앙 및 아랫부분 (흰색)
-        System.out.println("                     |==   |      |    ==|");
-        System.out.println("                     |      '----'      |");
-        System.out.println("                      \\                /");
-        System.out.println("                       \\              /");
-        System.out.println("                        '------------'");
+            // 중앙 및 아랫부분 (흰색)
+            System.out.println("                     |==   |      |    ==|");
+            System.out.println("                     |      '----'      |");
+            System.out.println("                      \\                /");
+            System.out.println("                       \\              /");
+            System.out.println("                        '------------'");
 
-        System.out.println(white + "\n               [ 1세대 관동버전 v1.0 ]" + reset);
-        System.out.println("              ------------------------------------");
-        System.out.println("                 ▶1.처음부터◀          ▶2.죵료◀   ");
-        System.out.println("                숫자를 입력하여 모험을 떠나세요!"  );
-        System.out.println("              ------------------------------------");
-
-        while (true){
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("Command : ");
+            System.out.println(white + "\n               [ 1세대 관동버전 v1.0 ]" + reset);
+            System.out.println("              ------------------------------------");
+            System.out.println("                 ▶1.처음부터◀          ▶2.죵료◀   ");
+            System.out.println("                숫자를 입력하여 모험을 떠나세요!"  );
+            System.out.println("              ------------------------------------");
+            System.out.print("[메뉴선택] : ");
             String cmd = scanner.nextLine();
             GameController gameController = new GameController();
             switch (cmd){
                 case "1" -> {
-                    System.out.println("모험을 시작합니다!");
+                    System.out.println("\n\n모험을 시작합니다!");
                     gameController.start();
                 }
                 case "2" -> {
                     return;
                 }
-                default -> System.out.println("<알림!>제시된 올바른 커멘드를 입력하세요.");
+                default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
             }
 
         }

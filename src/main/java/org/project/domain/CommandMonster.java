@@ -3,9 +3,11 @@ package org.project.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class CommandMonster {
     private  int id;
     private String name;

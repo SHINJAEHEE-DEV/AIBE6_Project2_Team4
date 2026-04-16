@@ -1,11 +1,14 @@
 package org.project.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
+@ToString
 public class PlayerInventory {
     private List<CommandMonster> myMonsters;
     private final int MAX_CAPACITY = 6;
@@ -38,5 +41,16 @@ public class PlayerInventory {
         }
         System.out.println("======================================");
     }
+    public void swapMonsters(int i, int j) {
+        if (i < 0 || i >= myMonsters.size() || j < 0 || j >= myMonsters.size()) {
+            System.out.println("\n<알림> 올바르지 않은 번호입니다.");
+            return;
+        }
+        Collections.swap(myMonsters, i, j);
+        System.out.println("\n[시스템] 포켓몬의 순서가 변경되었습니다!");
+    }
 
+    public void releaseMonster(int releaseIndex) {
+        myMonsters.remove(releaseIndex);
+    }
 }

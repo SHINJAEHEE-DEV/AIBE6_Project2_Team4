@@ -1,14 +1,16 @@
 package org.project.Controller;
 
+import org.project.Service.GameService;
 import org.project.domain.CommandMonster;
 import org.project.domain.PlayerInventory;
-import org.project.Service.MonsterService;
+import org.project.standard.util.Util;
+
 import java.util.Scanner;
 
 public class GameController {
     private Scanner scanner = new Scanner(System.in);
     private PlayerInventory inventory = new PlayerInventory();
-    private MonsterService monsterService = new MonsterService();
+    private GameService gameService = new GameService();
 
     public void start() {
         choosePartner();
@@ -32,7 +34,7 @@ public class GameController {
             case "2" -> starter = new CommandMonster("파이리", "불꽃", 39, 52, 43, 50, 65, 5);
             case "3" -> starter = new CommandMonster("꼬부기", "물", 44, 48, 65, 50, 43, 5);
             default -> {
-                System.out.println("\n오박사 :  똑바로 알려줄래? 그런 포켓몬은 없는것 같단다.");
+                System.out.println("\n[오박사] :  똑바로 알려줄래? 그런 포켓몬은 없는것 같단다.");
                 choosePartner();
                 return;
             }
@@ -43,17 +45,69 @@ public class GameController {
     private void mainMenu() {
         while (true) {
             System.out.println("\n▶1. 모험하기◀ | ▶2. 포켓몬 센터◀ | ▶3. 내 포켓몬 목록◀ | ▶0. 종료◀");
-            System.out.print("메뉴 선택: ");
+            System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
 
             switch (choice) {
                 case "1" -> startAdventure();
                 case "2" -> visitCenter();
-                case "3" -> inventory.showMonsters();
+                case "3" -> showMyMonstersMenu();
                 case "0" -> {
-                    System.out.println("시작화면으로 돌아갑니다.");
+                    System.out.println("\n시작화면으로 돌아갑니다.");
                     return;
                 }
+            }
+        }
+    }
+    private void showMyMonstersMenu() {
+        while (true) {
+            // 1. 현재 목록 출력
+            inventory.showMonsters(); // 기존에 만드신 출력 메서드 호출
+
+            System.out.println("\n▶1. 순서바꾸기◀ | ▶2. 놓아주기◀ | ▶0. 이전으로◀");
+            System.out.print("[메뉴 선택]: ");
+            String choice = scanner.nextLine();
+
+
+            switch (choice) {
+                case "1" -> {
+                    // 순서 바꾸기 로직
+                    if (inventory.getMyMonsters().size() < 2) {
+                        System.out.println("\n<알림> 순서를 바꿀 포켓몬이 부족합니다.");
+                        continue;
+                    }
+                    try {
+                            System.out.print("첫 번째 포켓몬 번호: ");
+                            int first = Integer.parseInt(scanner.nextLine()) - 1; // 인덱스라 -1
+                            System.out.print("두 번째 포켓몬 번호: ");
+                            int second = Integer.parseInt(scanner.nextLine()) - 1;
+
+                            inventory.swapMonsters(first, second);
+
+                    } catch (NumberFormatException e) {
+                            System.out.println("\n<알림> 숫자만 입력해주세요.");
+                    }
+                }
+                case "2" -> {
+//                    if (inventory.getMyMonsters().size() < 2) {
+//                        System.out.println("\n<알림> 1마리 이상은 가지고 있어야 합니다.");
+//                        continue;
+//                    }
+                    System.out.print("\n놓아줄 포켓몬 번호: ");
+                    int releaseIndex = Integer.parseInt(scanner.nextLine()) - 1;
+                    String name = inventory.getMyMonsters().get(releaseIndex).getName();
+                    inventory.releaseMonster(releaseIndex);
+                    Util.delay(500);
+                    System.out.println("\n...");
+                    Util.delay(500);
+                    System.out.println("\n[시스템] 내 친구 "+ name+"(이)가 떠나갔습니다. 바이바이!\n\n");
+                    Util.delay(800);
+                }
+                case "0" -> {
+                    System.out.println("\n이전화면으로 돌아갑니다.");
+                    return;
+                }
+                default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
             }
         }
     }
