@@ -59,4 +59,10 @@ public class PlayerInventory {
                             .average()
                                     .orElse(1);
     }
+    public  CommandMonster sendMonster(){
+        return myMonsters.stream()
+                .filter(e -> e.getCurrentHp() != 0)
+                .findFirst()
+                .orElse(null);
+    }
 }

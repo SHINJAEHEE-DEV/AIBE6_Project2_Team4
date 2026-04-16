@@ -22,6 +22,7 @@ public class GameController {
     private GameService gameService = new GameService();
     private List<CommandMonster> pokemonDatabase = new ArrayList<>();
     private Random random = new Random();
+
     public void start() {
         loadMostersData();
         Util.delay(500);
@@ -153,14 +154,19 @@ public class GameController {
             Util.delay(500);
             if(monsterOrTrainer()){
                 CommandMonster wildMonster =  getRandomMonster(inventory.getAvgLevel());
+                CommandMonster myMonster = inventory.sendMonster();
                 System.out.println("\n[시스템] 앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.");
+                System.out.println(" 나와!  "+ myMonster.getName()+"!");
+                Util.delay(500);
+                printMonsterStatus(wildMonster, "야생");
+                printMonsterStatus(myMonster, "");
             }else{
                 //플레이어 조우시
                 continue;
             }
 
             Util.delay(500);
-            System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 도망친다◀ | ▶0. 이전으로◀");
+            System.out.println("\n▶1. 싸운다◀ | ▶2. 몬스터볼◀ | ▶3. 벗어난다.◀ ");
             System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
             switch (choice) {
@@ -170,7 +176,7 @@ public class GameController {
                 case "2" -> {
 
                 }
-                case "0" -> {
+                case "3" -> {
                     System.out.println("\n이전화면으로 돌아갑니다.");
                     return;
                 }
@@ -178,6 +184,32 @@ public class GameController {
             }
         }
     }
+
+
+    private void printMonsterStatus(CommandMonster monster, String tag) {
+        String red = "\u001B[31m";
+        String green = "\u001B[32m";
+        String yellow = "\u001B[33m";
+        String reset = "\u001B[0m";
+
+        // 체력 비율 계산 (체력 바 표시용)
+        double hpRatio = (double) monster.getCurrentHp() / monster.getMaxHp();
+        int barCount = (int) (hpRatio * 20); // 20칸 기준 체력 바
+        String hpBar = "■".repeat(barCount) + "-".repeat(20 - barCount);
+
+        // 체력 색상 결정
+        String hpColor = (hpRatio > 0.5) ? green : (hpRatio > 0.2) ? yellow : red;
+
+        System.out.println((tag.equals("야생") ? red : green) + "========= [" + tag + " 포켓몬 정보] =========" + reset);
+        System.out.printf(" 이름 : %-10s  Lv.%3d  타입 : %s\n", monster.getName(), monster.getLevel(), monster.getType());
+        System.out.print(" HP   : [");
+        System.out.print(hpColor + hpBar + reset);
+        System.out.printf("] %d / %d\n", monster.getCurrentHp(), monster.getMaxHp());
+        System.out.println(" 종족값: ATK %d | SP %d |DEF %d | SPD %d".formatted(monster.getAtk(), monster.getSp(), monster.getBaseDef(),monster.getBaseSpd()));
+        System.out.println("==========================================");
+    }
+
+
     private boolean monsterOrTrainer(){
         int randomNum = random.nextInt(20);
         boolean isMonster = randomNum != 0;
