@@ -1,5 +1,6 @@
 package org.project.Controller;
 
+import org.project.Repository.PlayerRepository;
 import org.project.Service.GameService;
 import org.project.domain.CommandMonster;
 import org.project.domain.PlayerInventory;
@@ -8,31 +9,42 @@ import org.project.view.InputView;
 import org.project.view.OutputView;
 
 public class GameController {
-    // 입출력을 담당할 View 객체들을 생성
     private final InputView inputView = new InputView();
     private final OutputView outputView = new OutputView();
-
-    // 데이터와 비즈니스 로직을 담당할 객체들
-    private final PlayerInventory inventory = new PlayerInventory();
     private final GameService gameService = new GameService();
+    private final PlayerRepository playerRepository = new PlayerRepository();
+
+    // App에서 주입받을 플레이어 데이터와 새 게임 여부
+    private PlayerInventory inventory;
+    private final boolean isNewGame;
+
+    // 생성자를 통해 데이터 주입
+    public GameController(PlayerInventory inventory, boolean isNewGame) {
+        this.inventory = inventory;
+        this.isNewGame = isNewGame;
+    }
 
     public void start() {
         Util.delay(500);
 
-        outputView.printSystemMessage("게임 준비가 완료되었습니다.");
-        choosePartner();
+        // 새 게임이면 파트너를 선택하고, 불러온 게임이면 이 과정을 건너뜁니다.
+        if (isNewGame) {
+            outputView.printSystemMessage("새로운 모험의 준비가 완료되었습니다.");
+            choosePartner();
+        } else {
+            outputView.printSystemMessage("모험 기록을 성공적으로 불러왔습니다!");
+        }
+
         mainMenu();
     }
 
-    // --- [페이지 1: 파트너 포켓몬 선택] ---
     private void choosePartner() {
         outputView.printMessage("\n====================================");
         outputView.printMessage(" [오박사] \"자, 여기 세 마리의 포켓몬이 있단다.");
         outputView.printMessage(" 너의 여정을 함께할 파트너를 골라보려무나!\"");
         outputView.printMessage("====================================");
         outputView.printMessage(" 1. 이상해씨 (풀) | 2. 파이리 (불꽃) | 3. 꼬부기 (물)");
-        outputView.printMessage(" 번호 선택: ");
-
+        outputView.printSelectMessage(" 번호 선택: ");
 
         String choice = inputView.inputString();
         CommandMonster starter = null;
@@ -48,6 +60,7 @@ public class GameController {
             }
         }
         inventory.addMonster(starter);
+        inventory.getPokedex().markCaught(starter.getId());
         outputView.printUserMessage(starter.getName() + "을(를) 첫 번째 포켓몬으로 맞이했다!");
     }
 
@@ -60,8 +73,10 @@ public class GameController {
                 case "1" -> startAdventure();
                 case "2" -> visitCenter();
                 case "3" -> showMyMonstersMenu();
+                case "4" -> showPokedexMenu();
+                case "5" -> saveGame();
                 case "0" -> {
-                    outputView.printMessage("\n시작화면으로 돌아갑니다.");
+                    outputView.printMessage("\n타이틀 화면으로 돌아갑니다.");
                     return;
                 }
                 default -> outputView.printMessage("\n<알림> 제시된 올바른 숫자를 입력하세요.");
@@ -69,12 +84,26 @@ public class GameController {
         }
     }
 
+    private void saveGame() {
+        outputView.printSystemMessage("리포트를 작성하는 중입니다...");
+        Util.delay(800);
+        playerRepository.save(inventory);
+        outputView.printSystemMessage("모험 기록을 꼼꼼하게 리포트에 작성했다!");
+        Util.delay(500);
+    }
+
+    private void showPokedexMenu() {
+        outputView.printPokedex(inventory.getPokedex(), gameService.getDatabase());
+        outputView.printMessage("\n[엔터 키를 누르면 돌아갑니다]");
+        inputView.inputString();
+    }
+
     private void showMyMonstersMenu() {
         while (true) {
             Util.delay(500);
             inventory.showMonsters();
             outputView.printMessage("\n▶1. 순서바꾸기◀ | ▶2. 놓아주기◀ | ▶0. 이전으로◀");
-            outputView.printMessage("[메뉴 선택]: ");
+            outputView.printSelectMessage("[메뉴 선택]: ");
 
             String choice = inputView.inputString();
 
@@ -85,14 +114,14 @@ public class GameController {
                         continue;
                     }
                     try {
-                        outputView.printMessage("첫 번째 포켓몬 번호: ");
+                        outputView.printSelectMessage("첫 번째 포켓몬 번호: ");
                         int first = inputView.inputInt() - 1;
-                        outputView.printMessage("두 번째 포켓몬 번호: ");
+                        outputView.printSelectMessage("\n두 번째 포켓몬 번호: ");
                         int second = inputView.inputInt() - 1;
 
                         inventory.swapMonsters(first, second);
-                    } catch (NumberFormatException e) {
-                        outputView.printMessage("\n<알림> 숫자만 입력해주세요.");
+                    } catch (Exception e) {
+                        outputView.printMessage("\n<알림> 올바른 숫자를 입력해주세요.");
                     }
                 }
                 case "2" -> {
@@ -101,12 +130,12 @@ public class GameController {
                         continue;
                     }
                     try {
-                        outputView.printMessage("\n놓아줄 포켓몬 번호: ");
+                        outputView.printSelectMessage("\n놓아줄 포켓몬 번호: ");
                         int releaseIndex = inputView.inputInt() - 1;
                         String name = inventory.getMyMonsters().get(releaseIndex).getName();
                         inventory.releaseMonster(releaseIndex);
                         Util.delay(500);
-                        outputView.printMessage("\n...");
+                        outputView.printMessage("\n\n...");
                         Util.delay(500);
                         outputView.printUserMessage(name + "(이)가 떠나갔다. \"바이바이!\"\n\n");
                     } catch (Exception e) {
@@ -154,13 +183,15 @@ public class GameController {
             return;
         }
 
+        inventory.getPokedex().markSeen(wildMonster.getId());
+
         outputView.printUserMessage("\"앗! 야생의 "+ wildMonster.getName()+"(이)가 나타났다.\"");
         outputView.printUserMessage("\"나와라!  "+ myMonster.getName()+"!\"");
 
         while (true) {
             Util.delay(500);
-            outputView.printMonsterStatus(wildMonster, "야생");
-            outputView.printMonsterStatus(myMonster, "");
+            outputView.printMonsterStatus(wildMonster, "야생", inventory.getPokedex());
+            outputView.printMonsterStatus(myMonster, "", inventory.getPokedex());
             Util.delay(500);
 
             outputView.printAdventureMenu();
@@ -194,7 +225,7 @@ public class GameController {
                         outputView.printUserMessage("\"수고했어 " + myMonster.getName() + ", 돌아와!\"");
                         Util.delay(500);
                         myMonster = next;
-                        outputView.printUserMessage("\"가라! " + myMonster.getName() + "!\"");
+                        outputView.printUserMessage("\n\"가라! " + myMonster.getName() + "!\"");
 
                         Util.delay(800);
                         gameService.executeTurn(wildMonster, myMonster);
@@ -246,6 +277,8 @@ public class GameController {
             outputView.printMessage("\n\n [시스템] 찰카닥! " + wildMonster.getName() + "을(를) 잡았다!");
             wildMonster.setCurrentHp(wildMonster.getMaxHp());
             inventory.addMonster(wildMonster);
+            inventory.getPokedex().markCaught(wildMonster.getId());
+
             return true;
         } else {
             outputView.printMessage("\n\n [시스템] 뽀용! " + wildMonster.getName() + "이(가) 볼에서 튀어 나왔다!");
@@ -287,7 +320,7 @@ public class GameController {
         }
 
         Util.delay(500);
-        outputView.printUserMessage("\"나와라! " + nextMonster.getName() + "!\"");
+        outputView.printUserMessage("\n\"나와라! " + nextMonster.getName() + "!\"");
         return nextMonster;
     }
 
@@ -307,6 +340,7 @@ public class GameController {
             if (evolvedBase != null) {
                 String oldName = monster.getName();
                 monster.evolve(evolvedBase);
+                inventory.getPokedex().markCaught(monster.getId());
 
                 Util.delay(1000);
                 outputView.printSystemMessage("축하합니다! " + oldName + "은(는) "
@@ -320,7 +354,7 @@ public class GameController {
         while (true) {
             inventory.showMonsters();
             outputView.printMessage("\n[0. 취소(이전으로) | 번호 선택]");
-            outputView.printMessage("교체할 포켓몬의 번호를 입력하세요: ");
+            outputView.printSelectMessage("교체할 포켓몬의 번호를 입력하세요: ");
             try {
                 int choice = inputView.inputInt();
                 if (choice == 0) return null;
@@ -328,14 +362,14 @@ public class GameController {
                 CommandMonster selected = inventory.sendMonster(choice - 1);
 
                 if (selected == current) {
-                    outputView.printMessage("\n<알림> 이미 배틀 중인 포켓몬입니다!");
+                    outputView.printMessage("\n\n<알림> 이미 배틀 중인 포켓몬입니다!");
                 } else if (selected.getCurrentHp() <= 0) {
-                    outputView.printMessage("\n<알림> 기절한 포켓몬은 내보낼 수 없습니다!");
+                    outputView.printMessage("\n\n<알림> 기절한 포켓몬은 내보낼 수 없습니다!");
                 } else {
                     return selected;
                 }
             } catch (Exception e) {
-                outputView.printMessage("\n<알림> 올바른 번호를 입력해주세요.");
+                outputView.printMessage("\n\n<알림> 올바른 번호를 입력해주세요.");
             }
         }
     }

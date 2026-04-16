@@ -121,4 +121,7 @@ public class GameService {
         int roll = random.nextInt(total);
         return roll < atk;
     }
+    public java.util.List<CommandMonster> getDatabase() {
+        return gameRepository.getPokemonDatabase();
+    }
 }

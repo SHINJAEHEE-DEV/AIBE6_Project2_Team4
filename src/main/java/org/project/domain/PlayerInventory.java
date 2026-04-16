@@ -12,7 +12,7 @@ import java.util.List;
 public class PlayerInventory {
     private List<CommandMonster> myMonsters;
     private final int MAX_CAPACITY = 6;
-
+    private final Pokedex pokedex = new Pokedex();
     public PlayerInventory() {
         this.myMonsters = new ArrayList<>();
     }
@@ -74,5 +74,10 @@ public class PlayerInventory {
     }
     public  int getMonsterIndex(CommandMonster commandMonster){
         return myMonsters.indexOf(commandMonster);
+    }
+
+
+    public Pokedex getPokedex() {
+        return pokedex;
     }
 }

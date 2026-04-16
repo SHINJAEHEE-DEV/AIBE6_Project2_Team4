@@ -1,6 +1,8 @@
 package org.project;
 
 import org.project.Controller.GameController;
+import org.project.Repository.PlayerRepository;
+import org.project.domain.PlayerInventory;
 import org.project.standard.util.Util;
 
 import java.util.Scanner;
@@ -12,11 +14,11 @@ public class App {
     String white = "\u001B[37m";
     String yellow = "\u001B[33m";
     String reset = "\u001B[0m";
-    void run(){
 
+    void run(){
+        PlayerRepository playerRepository = new PlayerRepository();
 
         while (true){
-
             System.out.println("\n... COMMAND MONSTER 로딩 중 ...");
             Util.delay(500); // 0.5초 대기
             Scanner scanner = new Scanner(System.in);
@@ -44,28 +46,35 @@ public class App {
 
             System.out.println(white + "\n                           [ v1.0 ]" + reset);
             System.out.println("              ------------------------------------");
-            System.out.println("                 ▶1.처음부터◀          ▶2.죵료◀   ");
+            System.out.println("           ▶1.처음부터◀    ▶2.이어서 하기◀    ▶0.종료◀   ");
             System.out.println("                숫자를 입력하여 모험을 떠나세요!"  );
             System.out.println("              ------------------------------------");
             System.out.print("[메뉴선택] : ");
             String cmd = scanner.nextLine();
-            GameController gameController = new GameController();
+
             switch (cmd){
                 case "1" -> {
-                    System.out.println("\n\n모험을 시작합니다!");
+                    System.out.println("\n\n새로운 모험을 시작합니다!");
+                    // 새 게임: 빈 인벤토리 객체와 isNewGame=true 플래그 전달
+                    GameController gameController = new GameController(new PlayerInventory(), true);
                     gameController.start();
                 }
                 case "2" -> {
+                    PlayerInventory loadedData = playerRepository.load();
+                    if (loadedData == null) {
+                        System.out.println("\n<알림> 리포트(저장된 데이터)가 없습니다. 처음부터 시작해주세요.");
+                    } else {
+                        System.out.println("\n\n이전 모험을 이어서 시작합니다!");
+                        GameController gameController = new GameController(loadedData, false);
+                        gameController.start();
+                    }
+                }
+                case "0" -> {
+                    System.out.println("\n게임을 종료합니다. 안녕히 가세요!");
                     return;
                 }
-                default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
+                default -> System.out.println("\n<알림> 제시된 올바른 숫자를 입력하세요.");
             }
-
         }
-
-
     }
-
-
-
 }
