@@ -12,6 +12,7 @@ public class GameController {
 
     public void start() {
         choosePartner();
+        mainMenu();
     }
 
     // --- [페이지 1: 파트너 포켓몬 선택] ---
@@ -41,7 +42,7 @@ public class GameController {
     }
     private void mainMenu() {
         while (true) {
-            System.out.println("\n1. 모험하기 | 2. 포켓몬 센터 | 3. 내 포켓몬 목록 | 0. 종료");
+            System.out.println("\n▶1. 모험하기◀ | ▶2. 포켓몬 센터◀ | ▶3. 내 포켓몬 목록◀ | ▶0. 종료◀");
             System.out.print("메뉴 선택: ");
             String choice = scanner.nextLine();
 
@@ -49,7 +50,10 @@ public class GameController {
                 case "1" -> startAdventure();
                 case "2" -> visitCenter();
                 case "3" -> inventory.showMonsters();
-                case "0" -> { return; }
+                case "0" -> {
+                    System.out.println("시작화면으로 돌아갑니다.");
+                    return;
+                }
             }
         }
     }
