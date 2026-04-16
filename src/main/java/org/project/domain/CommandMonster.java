@@ -69,8 +69,32 @@ public class CommandMonster {
         this.level++; // 1. 레벨 증가
         int oldMaxHp = this.maxHp; // 2. 이전 최대 체력 기록
         ActualStats();  // 3. 증가한 레벨로 능력치 갱신
-        this.exp = 0;
+        this.exp -= this.totalExp;
+
+        // 혹시라도 계산 실수로 마이너스가 되지 않게 방어
+        if (this.exp < 0) this.exp = 0;
         // 4. 레벨업 보너스: 최대 체력이 늘어난 만큼 현재 체력도 회복
         this.currentHp += (this.maxHp - oldMaxHp);
+    }
+
+    public void evolve(CommandMonster evolvedBase) {
+        // 1. 기본 정보 변경
+        this.name = evolvedBase.getName();
+        this.type = evolvedBase.getType();
+
+        // 2. 종족값 변경
+        this.baseHp = evolvedBase.getBaseHp();
+        this.baseAtk = evolvedBase.getBaseAtk();
+        this.baseDef = evolvedBase.getBaseDef();
+        this.baseSp = evolvedBase.getBaseSp();
+        this.baseSpd = evolvedBase.getBaseSpd();
+
+        // 3. 다음 진화 정보 업데이트
+        this.evolutionLevel = evolvedBase.getEvolutionLevel();
+        this.evolutionId = evolvedBase.getEvolutionId();
+
+        // 4. 새로운 종족값으로 스탯 재계산 및 체력 회복
+        ActualStats();
+        this.currentHp = this.maxHp;
     }
 }

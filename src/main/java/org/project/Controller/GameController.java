@@ -167,20 +167,23 @@ public class GameController {
                 case "1" -> {
                     int result = gameService.startBattle(myMonster, wildMonster);
 
-                    if (result == 1) { // 야생 포켓몬 기절
-                        Util.delay(500);
-                        System.out.println("\n[시스템] 야생의 " + wildMonster.getName() + "이(가) 기절했다!");
-                        Util.delay(500);
+                    if (result == 1) {
+                        Util.delay(500);// 야생 포켓몬 기절
+                        System.out.println("\n[시스템] " + wildMonster.getName() + "이(가) 기절했다!");
                         int expAmount = gameService.calculateEarnedExp(wildMonster);
+                        Util.delay(500);
                         System.out.println("[시스템] " + expAmount + " EXP를 획득했다!");
 
-                        //레벨업 체크
-                        if(myMonster.getExpByBattle(expAmount)){
+                        // 레벨업 체크 (연속 레벨업이 가능하도록 while로 변경하는 것을 추천합니다)
+                        while (myMonster.getExpByBattle(expAmount)) {
                             myMonster.levelUp();
                             Util.delay(500);
                             System.out.println("[시스템] 레벨업! " + myMonster.getLevel() + "레벨이 되었다.");
+                            // (getExpByBattle 내부에서 이미 exp가 더해졌기 때문)
+                            expAmount = 0;
                         }
-                        return; // 전투 종료 (메인 메뉴로)
+                        checkEvolution(myMonster);
+                        return;
                     }
 
                     if (result == 2) { // 내 포켓몬 기절
@@ -214,7 +217,36 @@ public class GameController {
         }
     }
 
+    private void checkEvolution(CommandMonster monster) {
+        // 진화 조건: 진화 대상이 있고(id != 0), 현재 레벨이 진화 레벨 이상일 때
+        if (monster.getEvolutionId() != 0 && monster.getLevel() >= monster.getEvolutionLevel()) {
+            Util.delay(1000);
+            System.out.println("\n[시스템] ......어라? " + monster.getName() + "의 상태가...!");
 
+            // 진화 연출
+            for (int i = 0; i < 3; i++) {
+                Util.delay(600);
+                System.out.print(" ✨ ");
+            }
+            System.out.println();
+
+            // 데이터베이스에서 evolution_id에 해당하는 기본 포켓몬 정보 찾기
+            CommandMonster evolvedBase = pokemonDatabase.stream()
+                    .filter(p -> p.getId() == monster.getEvolutionId())
+                    .findFirst()
+                    .orElse(null);
+
+            if (evolvedBase != null) {
+                String oldName = monster.getName();
+                monster.evolve(evolvedBase); // 진화 실행
+
+                Util.delay(1000);
+                System.out.println("\n[시스템] 축하합니다! " + oldName + "은(는) "
+                        + monster.getName() + "(으)로 진화했다!");
+                Util.delay(1000);
+            }
+        }
+    }
 
 
     public CommandMonster selectReplacement(CommandMonster current) {
