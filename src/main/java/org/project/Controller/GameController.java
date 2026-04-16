@@ -61,13 +61,12 @@ public class GameController {
     }
     private void showMyMonstersMenu() {
         while (true) {
+            Util.delay(500);
             // 1. 현재 목록 출력
-            inventory.showMonsters(); // 기존에 만드신 출력 메서드 호출
-
+            inventory.showMonsters(); //  출력 메서드 호출
             System.out.println("\n▶1. 순서바꾸기◀ | ▶2. 놓아주기◀ | ▶0. 이전으로◀");
             System.out.print("[메뉴 선택]: ");
             String choice = scanner.nextLine();
-
 
             switch (choice) {
                 case "1" -> {
@@ -89,10 +88,10 @@ public class GameController {
                     }
                 }
                 case "2" -> {
-//                    if (inventory.getMyMonsters().size() < 2) {
-//                        System.out.println("\n<알림> 1마리 이상은 가지고 있어야 합니다.");
-//                        continue;
-//                    }
+                    if (inventory.getMyMonsters().size() < 2) {
+                        System.out.println("\n<알림> 1마리 이상은 가지고 있어야 합니다.");
+                        continue;
+                    }
                     System.out.print("\n놓아줄 포켓몬 번호: ");
                     int releaseIndex = Integer.parseInt(scanner.nextLine()) - 1;
                     String name = inventory.getMyMonsters().get(releaseIndex).getName();
@@ -101,7 +100,7 @@ public class GameController {
                     System.out.println("\n...");
                     Util.delay(500);
                     System.out.println("\n[시스템] 내 친구 "+ name+"(이)가 떠나갔습니다. 바이바이!\n\n");
-                    Util.delay(800);
+
                 }
                 case "0" -> {
                     System.out.println("\n이전화면으로 돌아갑니다.");
@@ -113,6 +112,25 @@ public class GameController {
     }
 
     private void visitCenter() {
+        System.out.println("\n[포켓몬 센터] 간호순: 안녕하세요! 포켓몬 센터입니다.");
+        System.out.println("잠시만 기다려 주세요. 포켓몬을 치료해 드릴게요.");
+
+        Util.delay(500);
+        System.out.print("치료 중...");
+        for(int i = 0; i < 3; i++) {
+            Util.delay(400);
+            System.out.print("띵~♪ ♬");
+        }
+        System.out.println("\n");
+        Util.delay(500);
+
+        // 인벤토리 내 모든 포켓몬 회복 로직
+        for (CommandMonster m : inventory.getMyMonsters()) {
+            m.setCurrentHp(m.getMaxHp());
+        }
+
+        System.out.println("띠리리링! ♬ 모든 포켓몬이 건강해졌습니다!");
+        Util.delay(800);
     }
 
     private void startAdventure() {
