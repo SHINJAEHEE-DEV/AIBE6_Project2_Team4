@@ -72,4 +72,7 @@ public class PlayerInventory {
         // 살아있는 포켓몬이 한 마리라도 있으면 false, 모두 기절했으면 true
         return myMonsters.stream().allMatch(m -> m.getCurrentHp() <= 0);
     }
+    public  int getMonsterIndex(CommandMonster commandMonster){
+        return myMonsters.indexOf(commandMonster);
+    }
 }

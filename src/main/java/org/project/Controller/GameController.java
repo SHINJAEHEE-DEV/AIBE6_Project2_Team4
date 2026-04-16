@@ -237,7 +237,7 @@ public class GameController {
                     return;
                 }
                 case  "4" ->{
-                    selectReplacement(myMonster);
+                    myMonster = selectReplacement(myMonster);
                     gameService.executeTurn(wildMonster, myMonster);
                 }
                 default -> System.out.println("\n<알림>제시된 올바른 숫자를 입력하세요.");
@@ -322,6 +322,7 @@ public class GameController {
                 } else if (selected.getCurrentHp() <= 0) {
                     System.out.println("\n<알림> 기절한 포켓몬은 내보낼 수 없습니다!");
                 } else {
+                    inventory.swapMonsters(inventory.getMonsterIndex(current), choice);
                     return selected; // 적절한 교체 대상 반환
                 }
             } catch (Exception e) {
