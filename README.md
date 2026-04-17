@@ -42,6 +42,9 @@
 
 - 전투 승리 계산 방식 기반 경험치 획득, 기준치(Exp) 돌파 시 동적 레벨업 및 스탯 재연산(HP, Atk, Def 등)
 - 특정 레벨에 도달하면 다음 단계로 변화하는 **진화 시스템** 자동 이벤트 활성화
+<p align="center">
+  <img src="./docs/image/CommandMoster_evol.gif" alt="Command Monster 진화">
+</p>
 
 ### 5. 덱 편성과 몬스터 관리
 
