@@ -2,6 +2,7 @@ package org.project.Service;
 
 import org.project.Repository.GameRepository;
 import org.project.domain.CommandMonster;
+import org.project.standard.util.TypeChart;
 import org.project.standard.util.Util;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Random;
 public class GameService {
     private final GameRepository gameRepository = new GameRepository();
     private final Random random = new Random();
+    private  TypeChart typeChart = new TypeChart();
 
     /**
      * 야생 포켓몬 생성
@@ -105,7 +107,8 @@ public class GameService {
 
         // 대미지 공식 적용
         double rawDamage = ((2.0 * attacker.getLevel() / 5.0) + 2.0) * ((double) attackPower / defensePower) + 2;
-        int finalDamage = (int) rawDamage; // 타입 상성(TypeChart) 적용 시 여기에 곱셈 추가
+        double typeMagnification = typeChart.getMultiplier(attacker.getType(), defender.getType());
+        int finalDamage = (int)(rawDamage * typeMagnification); // 타입 상성(TypeChart) 적용 시 여기에 곱셈 추가
 
         defender.setCurrentHp(Math.max(0, defender.getCurrentHp() - finalDamage));
 
